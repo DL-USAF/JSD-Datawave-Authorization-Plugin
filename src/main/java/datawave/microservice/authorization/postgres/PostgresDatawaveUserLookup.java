@@ -49,8 +49,8 @@ public class PostgresDatawaveUserLookup {
     
     private DatawaveUser buildUser(SubjectIssuerDNPair dn) {
         logger.info("Inside postgres build user...");
-        logger.info(String.format("Database Address:%s", postgresDULProperties.getDbAddr()));
-        logger.info(String.format("Database Name:%s", postgresDULProperties.getDbName()));
+        logger.info(String.format("Database Address: %s", postgresDULProperties.getDbAddr()));
+        logger.info(String.format("Database Name: %s", postgresDULProperties.getDbName()));
         UserType userType = UserType.USER;
         if (postgresDULProperties.getServerDnRegex() != null && Pattern.matches(postgresDULProperties.getServerDnRegex(), getCN(dn.subjectDN()))) {
             userType = UserType.SERVER;
@@ -136,9 +136,8 @@ public class PostgresDatawaveUserLookup {
         logger.info("Getting the person GUID...");
         // This is intended to add a sub-query string, depending on route being used.
         String query = buildIdQuery();
-        logger.info(String.format("Database Query:%s", query));
+        logger.info(String.format("Database Query: %s", query));
         
-        // TODO get first name from dn
         logger.info(String.format("DN Regex: %s", postgresDULProperties.getDnRegex()));
         logger.info(String.format("String to Match On: %s", getCN(dn.subjectDN())));
         Pattern pattern = Pattern.compile(postgresDULProperties.getDnRegex(), Pattern.CASE_INSENSITIVE);
@@ -192,7 +191,7 @@ public class PostgresDatawaveUserLookup {
      */
     private List<String> executeQuery(Connection conn, int personGuid, String table, String column) throws SQLException {
         String query = String.format("select %s from %s where user_id = ?;", column, table);
-        logger.info(String.format("Database Query:%s", query));
+        logger.info(String.format("Database Query: %s", query));
         List<String> values = new ArrayList<String>();
         
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
