@@ -14,7 +14,7 @@ public class PostgresDULProperties {
     private String dbPassword;
     private boolean rolesEnabled = true;
     private String serverDnRegex;
-    private String cnRegex = "(cn=)?(?<sn>[a-zA-Z/.1-9]*),?";
+    private String cnRegex = "cn=(?<sn>[a-zA-Z.0-9]*),?";
     private String userTable = "user_information";
     private String idColumn = "id";
     private Map<String,String> idQueryWhereClauses;

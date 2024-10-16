@@ -66,6 +66,7 @@ public class PostgresDatawaveUserLookup {
             
             // no user found matching the cert, cannot continue
             if (personGuid == -1) {
+            	logger.warn(String.format("%s User not found, cannot authorize.", dn.subjectDN()));
                 return DatawaveUser.ANONYMOUS_USER;
             }
             
@@ -84,6 +85,7 @@ public class PostgresDatawaveUserLookup {
         
         long creationTime = System.currentTimeMillis();
         long expireTime = creationTime + 60000;
+        // Empty string in third variable slot is the email option
         return new DatawaveUser(dn, userType, "", auths, roles, null, creationTime, expireTime);
     }
     
@@ -99,7 +101,7 @@ public class PostgresDatawaveUserLookup {
             String match = matcher.group("sn");
             return match;
         } else {
-            System.out.println("Match not found");
+            logger.warn("CN match not found");
         }
         
         throw new RuntimeException("No 'cn' found within certificate DN, cannot get user info.");
@@ -137,13 +139,12 @@ public class PostgresDatawaveUserLookup {
         logger.info(String.format("Database Query:%s", query));
         
         // TODO get first name from dn
-        logger.info(String.format("DN Regex:%s", postgresDULProperties.getDnRegex()));
-        logger.info(String.format("String to Match On: %s", dn.subjectDN()));
+        logger.info(String.format("DN Regex: %s", postgresDULProperties.getDnRegex()));
+        logger.info(String.format("String to Match On: %s", getCN(dn.subjectDN())));
         Pattern pattern = Pattern.compile(postgresDULProperties.getDnRegex(), Pattern.CASE_INSENSITIVE);
-        Matcher matcher = pattern.matcher(dn.subjectDN());
+        Matcher matcher = pattern.matcher(getCN(dn.subjectDN()));
         matcher.find();
-        logger.info(String.format("Count of Groups: ", matcher.groupCount()));
-        logger.info(matcher.toString());
+        logger.info(String.format("Count of Groups: %s", matcher.groupCount()));
         
         int personGuid = -1;
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
@@ -206,13 +207,13 @@ public class PostgresDatawaveUserLookup {
         return values;
     }
     
-    private List<String> getRoles(Connection conn, int persionGuid) throws SQLException {
+    private List<String> getRoles(Connection conn, int personGuid) throws SQLException {
         logger.info("Getting the list of user roles...");
-        return executeQuery(conn, persionGuid, "dw_roles", "dw_role");
+        return executeQuery(conn, personGuid, "dw_roles", "dw_role");
     }
     
-    private List<String> getAuths(Connection conn, int persionGuid) throws SQLException {
+    private List<String> getAuths(Connection conn, int personGuid) throws SQLException {
         logger.info("Getting the list of user auths...");
-        return executeQuery(conn, persionGuid, "auths", "auth");
+        return executeQuery(conn, personGuid, "auths", "auth");
     }
 }

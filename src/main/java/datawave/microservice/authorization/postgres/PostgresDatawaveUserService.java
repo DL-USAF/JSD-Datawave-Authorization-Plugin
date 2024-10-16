@@ -3,6 +3,7 @@ package datawave.microservice.authorization.postgres;
 import static datawave.microservice.authorization.jsd.JsdDatawaveUserService.CACHE_NAME;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.stream.Collectors;
 
 import org.springframework.cache.annotation.CacheConfig;
@@ -29,28 +30,41 @@ public class PostgresDatawaveUserService implements CachedDatawaveUserService {
     
     @Override
     public Collection<DatawaveUser> lookup(Collection<SubjectIssuerDNPair> dns) {
+    	if (dns == null) {
+    		return Collections.emptyList();
+    	}
         return dns.stream().map(jsdDatawaveUserLookup::lookupUser).collect(Collectors.toList());
     }
     
     @Override
     public Collection<DatawaveUser> reload(Collection<SubjectIssuerDNPair> dns) {
-        return dns.stream().map(jsdDatawaveUserLookup::reloadUser).collect(Collectors.toList());
+    	if (dns == null) {
+    		return Collections.emptyList();
+    	}
+    	return dns.stream().map(jsdDatawaveUserLookup::reloadUser).collect(Collectors.toList());
     }
     
     @Override
     public DatawaveUser list(String name) {
-        return cacheInspector.list(CACHE_NAME, DatawaveUser.class, name.toLowerCase());
+    	return cacheInspector.list(CACHE_NAME, DatawaveUser.class, name.toLowerCase());
     }
     
     @Override
     public Collection<? extends DatawaveUserInfo> listAll() {
-        return cacheInspector.listAll(CACHE_NAME, DatawaveUser.class).stream().map(DatawaveUserInfo::new).collect(Collectors.toList());
+    	Collection<? extends DatawaveUser> users = cacheInspector.listAll(CACHE_NAME, DatawaveUser.class);
+    	if (users == null) {
+    		return Collections.emptyList();
+    	}
+    	return users.stream().map(DatawaveUserInfo::new).collect(Collectors.toList());
     }
     
     @Override
     public Collection<? extends DatawaveUserInfo> listMatching(String substring) {
-        return cacheInspector.listMatching(CACHE_NAME, DatawaveUser.class, substring.toLowerCase()).stream().map(DatawaveUserInfo::new)
-                        .collect(Collectors.toList());
+    	Collection<? extends DatawaveUser> users = cacheInspector.listMatching(CACHE_NAME, DatawaveUser.class, substring.toLowerCase());
+    	if (users == null) {
+    		return Collections.emptyList();
+    	}
+        return users.stream().map(DatawaveUserInfo::new).collect(Collectors.toList());
     }
     
     @Override
