@@ -9,7 +9,7 @@
     </parent>
     <groupId>gov.usaf.eddge.abacus</groupId>
     <artifactId>jsd-dwv-auth</artifactId>
-    <version>0.0.4</version>
+    <version>0.0.5</version>
     <description>DATAWAVE Authorization JSD Plugin</description>
     <properties>
         <start-class>datawave.microservice.authorization.AuthorizationService</start-class>
